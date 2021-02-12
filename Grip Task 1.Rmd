@@ -1,0 +1,81 @@
+---
+title: "Grip Task 1"
+author: "Nishant Kumar (19138-BMS 2C)"
+date: "12/02/2021"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+file<-'http://bit.ly/w-data'
+data<-read.csv(file,header = T)
+attach(data)
+head(data,5)
+```
+
+
+```{r}
+summary(data)
+```
+
+```{r}
+#Ploting the dataset
+par(mar=c(1,1,1,1))
+library(ggplot2)
+g1<-ggplot(data,aes(x=Hours,y=Scores))+geom_point(col='red')+labs(title = "Hours vs Studies")
+g1<-g1+theme(plot.title=element_text(hjust=0.5,face="bold", color="blue"))
+g1
+```
+
+```{r}
+#Splitting into training and testing data:
+dt = sort(sample(nrow(data), nrow(data)*.8))
+train<-data[dt,]
+test<-data[-dt,]
+print(train)
+print(test)
+```
+
+```{r}
+#Regression Model:
+model<-lm(Scores~Hours,train)
+model
+```
+
+```{r}
+#plotting the regression line:
+with(data,plot(Hours, Scores))
+abline(model)
+```
+
+```{r}
+#predicting hours using train data:
+pred = predict(model,test)
+pred
+compare <-data.frame(test$Scores,pred)
+names(compare)[names(compare) == "test.Scores"] <- "Actual"
+names(compare)[names(compare) == "pred"] <- "Predicted"
+compare
+```
+
+```{r}
+#calculate the error margin between prediction and actual values in test data
+library(MLmetrics)
+error=test$Scores-pred
+print(paste("Mean square error:",sum(error^2)/nrow(data)))
+print(paste("MAPE =",MAPE(compare$Predicted,compare$Actual)))
+```
+
+```{r}
+#Testing and predicting for the the given 9.25 hours:
+
+pred_score=predict(model,data.frame(Hours=9.25))
+print(paste("The predicted score is: ",pred_score))
+```
+
+
+
+
